@@ -57,7 +57,12 @@ Feedback_ID: {feedback_id}
   - `label`  
   - `justification` (short natural language)  
   - `linked_main_category_id` (integer from **<CATEGORY_ID_MAP>**, or `-1` for no matching main_category)  
-> Note: `linked_main_category_id` must match one of the IDs in `<CATEGORY_ID_MAP>` corresponding to the main category.
+    > Use the ID of the main category this sub-category links to (1-9)
+        * Use 9999 for new/discovery sub-categories that don't link to any selected main category
+        * Use -1 if NOT_SURE is the selected main category
+        * **NOTE** If NOT_SURE is selected as main category, ALL sub-categories MUST have `linked_main_category_id = -1`
+        * **NOTE** If a main category is selected, at least one sub-category should link to it (unless all are new discovery categories with ID 9999)
+        * **NOTE** Sub-category IDs must either match a selected main category ID OR be 9999
 
 ### 5.4 Confidence
 - Float between **0.0** and **1.0** representing overall classification confidence.
@@ -69,13 +74,17 @@ Feedback_ID: {feedback_id}
 2. Choose the most appropriate Main Categories with direct evidence from the feedback. If none apply, choose `NOT_SURE` (alone).  
 3. For each selected Main Category, write a short justification quoting or paraphrasing the feedback.  
 4. Identify 1–8 Sub-Categories, make them specific, and write a short justification for each.  
-5. Map each Sub-Category to the correct Main Category ID using **<CATEGORY_ID_MAP>**, or use `-1` if no match.  
+5. Map each Sub-Category to the correct Main Category ID using **<CATEGORY_ID_MAP>**:  
+   - If linked to a selected main category, use its ID (1–9).  
+   - If `NOT_SURE` is the main category, use `-1`.  
+   - If the sub-category is a new/unlinked discovery category, use `9999`.  
 6. Validate that JSON exactly matches the schema. Do not include explanations, commentary, or chain-of-thought.
+
 
 ---
 
 ## 7. Expected Output Format (***MANDATORY***)
-Return **exactly one** JSON object matching this structure. No additional text, no code fences in the model response.
+Your response must match this structure:
 
 ```json
 {{
@@ -91,8 +100,7 @@ Return **exactly one** JSON object matching this structure. No additional text, 
         {{
             "label": "<SUB_CATEGORY_UPPER_SNAKE_CASE>",
             "justification": "<short justification>",
-            "linked_main_category_id": <integer from CATEGORY_ID_MAP or -1>
-        }}
+            "linked_main_category_id": <integer from CATEGORY_ID_MAP (1-9), -1 if NOT_SURE, or 9999 for new/unlinked sub-category>
     ]
 }}
 
